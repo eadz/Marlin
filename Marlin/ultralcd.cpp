@@ -336,6 +336,7 @@ static void lcd_main_menu()
 {
     START_MENU();
     MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
+
     if (movesplanned() || IS_SD_PRINTING)
     {
         MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
@@ -415,45 +416,6 @@ void lcd_set_home_offsets()
 
 #endif //BABYSTEPPING
 
-static void lcd_tune_menu()
-{
-    START_MENU();
-    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
-    MENU_ITEM_EDIT(int3, MSG_SPEED, &feedmultiply, 10, 999);
-#if TEMP_SENSOR_0 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
-#endif
-#if TEMP_SENSOR_1 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
-#endif
-#if TEMP_SENSOR_2 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE2, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
-#endif
-#if TEMP_SENSOR_BED != 0
-    MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
-#endif
-    MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
-    MENU_ITEM_EDIT(int3, MSG_FLOW, &extrudemultiply, 10, 999);
-    MENU_ITEM_EDIT(int3, MSG_FLOW0, &extruder_multiply[0], 10, 999);
-#if TEMP_SENSOR_1 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW1, &extruder_multiply[1], 10, 999);
-#endif
-#if TEMP_SENSOR_2 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW2, &extruder_multiply[2], 10, 999);
-#endif
-
-#ifdef BABYSTEPPING
-    #ifdef BABYSTEP_XY
-      MENU_ITEM(submenu, MSG_BABYSTEP_X, lcd_babystep_x);
-      MENU_ITEM(submenu, MSG_BABYSTEP_Y, lcd_babystep_y);
-    #endif //BABYSTEP_XY
-    MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
-#endif
-#ifdef FILAMENTCHANGEENABLE
-     MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
-#endif
-    END_MENU();
-}
 
 void lcd_preheat_pla0()
 {
@@ -601,41 +563,6 @@ void lcd_cooldown()
     setTargetBed(0);
     fanSpeed = 0;
     lcd_return_to_status();
-}
-
-static void lcd_prepare_menu()
-{
-    START_MENU();
-    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
-#ifdef SDSUPPORT
-    #ifdef MENU_ADDAUTOSTART
-      MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
-    #endif
-#endif
-    MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
-    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
-    MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
-    //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
-#if TEMP_SENSOR_0 != 0
-  #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
-    MENU_ITEM(submenu, MSG_PREHEAT_PLA, lcd_preheat_pla_menu);
-    MENU_ITEM(submenu, MSG_PREHEAT_ABS, lcd_preheat_abs_menu);
-  #else
-    MENU_ITEM(function, MSG_PREHEAT_PLA, lcd_preheat_pla0);
-    MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs0);
-  #endif
-#endif
-    MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
-#if PS_ON_PIN > -1
-    if (powersupply)
-    {
-        MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
-    }else{
-        MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
-    }
-#endif
-    MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
-    END_MENU();
 }
 
 #ifdef DELTA_CALIBRATION_MENU
@@ -1708,6 +1635,82 @@ void copy_and_scalePID_i()
   Ki = scalePID_i(raw_Ki);
   updatePID();
 #endif
+}
+static void lcd_tune_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+    MENU_ITEM_EDIT(int3, MSG_SPEED, &feedmultiply, 10, 999);
+#if TEMP_SENSOR_0 != 0
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
+#endif
+#if TEMP_SENSOR_1 != 0
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
+#endif
+#if TEMP_SENSOR_2 != 0
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE2, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
+#endif
+#if TEMP_SENSOR_BED != 0
+    MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
+#endif
+    MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
+    MENU_ITEM_EDIT(int3, MSG_FLOW, &extrudemultiply, 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW0, &extruder_multiply[0], 10, 999);
+#if TEMP_SENSOR_1 != 0
+    MENU_ITEM_EDIT(int3, MSG_FLOW1, &extruder_multiply[1], 10, 999);
+#endif
+#if TEMP_SENSOR_2 != 0
+    MENU_ITEM_EDIT(int3, MSG_FLOW2, &extruder_multiply[2], 10, 999);
+#endif
+
+#ifdef BABYSTEPPING
+    #ifdef BABYSTEP_XY
+      MENU_ITEM(submenu, MSG_BABYSTEP_X, lcd_babystep_x);
+      MENU_ITEM(submenu, MSG_BABYSTEP_Y, lcd_babystep_y);
+    #endif //BABYSTEP_XY
+    MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
+#endif
+#ifdef FILAMENTCHANGEENABLE
+     MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
+#endif
+    END_MENU();
+}
+
+static void lcd_prepare_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+    MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
+
+#ifdef SDSUPPORT
+    #ifdef MENU_ADDAUTOSTART
+      MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
+    #endif
+#endif
+    MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
+    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+    MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
+    //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
+#if TEMP_SENSOR_0 != 0
+  #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
+    MENU_ITEM(submenu, MSG_PREHEAT_PLA, lcd_preheat_pla_menu);
+    MENU_ITEM(submenu, MSG_PREHEAT_ABS, lcd_preheat_abs_menu);
+  #else
+    MENU_ITEM(function, MSG_PREHEAT_PLA, lcd_preheat_pla0);
+    MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs0);
+  #endif
+#endif
+    MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
+#if PS_ON_PIN > -1
+    if (powersupply)
+    {
+        MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
+    }else{
+        MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
+    }
+#endif
+    MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+    END_MENU();
 }
 
 // Callback for after editing PID d value

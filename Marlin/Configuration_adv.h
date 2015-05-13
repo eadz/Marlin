@@ -216,7 +216,7 @@
 #define X_HOME_RETRACT_MM 5
 #define Y_HOME_RETRACT_MM 5
 #define Z_HOME_RETRACT_MM 2
-//#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
+#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 #ifdef CONFIG_STEPPERS_TOSHIBA
@@ -308,7 +308,7 @@
   // Amount of time (ms) to retain the status message (0=forever)
   #define PROGRESS_MSG_EXPIRE   0
   // Enable this to show messages for MSG_TIME then hide them
-  //#define PROGRESS_MSG_ONCE
+  #define PROGRESS_MSG_ONCE
 #endif
 
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
@@ -327,7 +327,7 @@
 // Babystepping enables the user to control the axis in tiny amounts, independently from the normal printing process
 // it can e.g. be used to change z-positions in the print startup phase in real-time
 // does not respect endstops!
-//#define BABYSTEPPING
+#define BABYSTEPPING
 #ifdef BABYSTEPPING
   #define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
   #define BABYSTEP_INVERT_Z false  //true for inverse movements in Z
